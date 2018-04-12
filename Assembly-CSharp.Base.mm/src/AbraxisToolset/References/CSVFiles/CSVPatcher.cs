@@ -12,6 +12,7 @@ namespace AbraxisToolset.CSVFiles {
     public class CSVPatcher {
 
         public static string backupPath = "/BACKUP_data/";
+        public const string MOD_DATA_PATH = "/Mods";
 
         public static readonly SimpleListCSV itemCSV = new SimpleListCSV();
         public static readonly SimpleListCSV creatureCSV = new SimpleListCSV();
@@ -69,7 +70,7 @@ namespace AbraxisToolset.CSVFiles {
             //Patch CSV Data using mods
             {
                 string modPath = Directory.GetParent( Application.dataPath ).FullName;
-                modPath += ATModManager.MOD_DATA_PATH;
+                modPath += MOD_DATA_PATH;
                 string[] csvMods = Directory.GetFiles( modPath, "*.csv", SearchOption.AllDirectories );
 
                 foreach( string csvPath in csvMods ) {

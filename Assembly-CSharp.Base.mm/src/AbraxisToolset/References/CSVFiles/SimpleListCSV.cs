@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace AbraxisToolset.CSVFiles {
     public class SimpleListCSV: ICSVFile {
-        public Dictionary<string, ListEntry> entries = new Dictionary<string, ListEntry>();
+        public Dictionary<string, ListEntry> entries = new Dictionary<string, ListEntry>(); //Possibly make new class which holds ListEntry & a number, need a way to reference row #
         public ListEntry defEntry;
         public bool useGroups = true;
 
@@ -122,7 +122,6 @@ namespace AbraxisToolset.CSVFiles {
             try {
                 List<string> lines = new List<string>();
                 string fileName = Path.GetFileNameWithoutExtension( path );
-
                 //Def entry
                 {
                     string line = string.Empty;
@@ -134,7 +133,7 @@ namespace AbraxisToolset.CSVFiles {
                     lines.Add( line );
                 }
 
-
+                //Hey entries.Values doesnt take into account multiple of the same name
                 foreach( ListEntry entry in entries.Values ) {
                     string line = string.Empty;
                     List<string> components = new List<string>();
@@ -146,12 +145,13 @@ namespace AbraxisToolset.CSVFiles {
                         } else {
                             line += s + ',';
                         }
+                        Debug.Log(string.Format("Filename {0} with Entry - {1} ", fileName, line)); 
                     }
                     //Append new line
-                    lines.Add( line );
+                    lines.Add(line);
                 }
 
-                //Debug.Log( string.Format( "Writing {0} lines to file {1}, out of {2} entries", lines.Count, fileName, entries.Values.Count ) );
+                Debug.Log( string.Format( "Writing {0} lines to file {1}, out of {2} entries", lines.Count, fileName, entries.Values.Count ) );
                 File.WriteAllLines( path, lines.ToArray() );
             } catch( System.Exception e ) {
                 Debug.LogError( e );

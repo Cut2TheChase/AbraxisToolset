@@ -60,7 +60,7 @@ namespace AbraxisToolset {
             CSVPatcher.PatchCSVs();
 
             //Load DLL mods.
-            ATModManager.LoadMods();
+           // ATModManager.LoadMods();
         }
 
         public void Awake() {
@@ -89,7 +89,7 @@ namespace AbraxisToolset {
             }
 
             UpdateCurrentCell();
-            UpdateMods();
+           // UpdateMods();
         }
 
         public void UpdateCurrentCell() {
@@ -100,6 +100,7 @@ namespace AbraxisToolset {
                 }
             }
         }
+        /*
         public void UpdateMods() {
             foreach( ATMod mod in ATModManager.loadedMods ) {
                 try {
@@ -109,7 +110,8 @@ namespace AbraxisToolset {
                 }
             }
         }
-
+        */
+        /*
         public void OnGUI() {
             int id = 1;
 
@@ -133,11 +135,12 @@ namespace AbraxisToolset {
 
             }
 
-        }
+        }*/
         public void OnApplicationQuit() {
+            /*
             foreach( ATMod mod in ATModManager.loadedMods ) {
                 mod.OnApplicationExit();
-            }
+            }*/
 
             CSVPatcher.RestoreDefaultCSVs();
         }

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace AbraxisToolset {
     public class TestMod: ATMod {
-
+        /*
         public override void Init() {
             base.Init();
             this.name = "Test Mod";
@@ -18,5 +18,6 @@ namespace AbraxisToolset {
 
             GUILayout.Label("Words");
         }
+        */
     }
 }

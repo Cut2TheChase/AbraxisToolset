@@ -13,8 +13,9 @@ using HBS.DebugConsole;
 
 namespace AbraxisToolset.ModLoader {
     public class ATModManager {
+        /*
+        public const string MOD_DATA_PATH = "/Mods";
 
-        public const string MOD_DATA_PATH = "/mods";
         public static List<ATMod> loadedMods = new List<ATMod>();
         public static Dictionary<string, ATMod> modDictionary = new Dictionary<string, ATMod>();
 
@@ -91,6 +92,6 @@ namespace AbraxisToolset.ModLoader {
         public static void NetworkEnableMod(string modID) {
 
         }
-
+        */
     }
 }

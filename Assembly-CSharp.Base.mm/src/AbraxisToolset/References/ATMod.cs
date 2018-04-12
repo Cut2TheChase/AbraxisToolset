@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace AbraxisToolset {
     public class ATMod {
-
+        /*
         public string name = "modname";
         public string version = "version";
 
@@ -147,6 +147,6 @@ namespace AbraxisToolset {
                 GUI.DragWindow();
             }
         }
-
+        */
     }
 }

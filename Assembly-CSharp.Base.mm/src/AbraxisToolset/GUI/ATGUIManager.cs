@@ -56,9 +56,10 @@ namespace AbraxisToolset {
             }
         }
 
+        //Tab showing Enabled/Disabled Mods in GUI
         public static void ModsTab() {
             return;
-
+            /*
             //Enabled mods
             {
                 CenterLabel( "Enabled Mods" );
@@ -75,7 +76,6 @@ namespace AbraxisToolset {
 
                 GUILayout.EndScrollView();
             }
-
             //Disabled mods
             {
                 CenterLabel( "Disabled Mods" );
@@ -92,6 +92,8 @@ namespace AbraxisToolset {
 
                 GUILayout.EndScrollView();
             }
+
+            */
         }
         public static void OptionsTab() {
 
