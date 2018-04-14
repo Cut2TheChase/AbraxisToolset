@@ -10,9 +10,12 @@ using UnityEngine;
 namespace AbraxisToolset.CSVFiles {
     public class SimpleListCSV: ICSVFile {
         public Dictionary<string, ListEntry> entries = new Dictionary<string, ListEntry>(); //Possibly make new class which holds ListEntry & a number, need a way to reference row #
-        public Dictionary<int, ListEntry> entriesByRow = new Dictionary<int, ListEntry>(); //Holds entries, but by row instead
+        public Dictionary<int, ListEntry> animEntries = new Dictionary<int, ListEntry>(); //Holds entries for anim actions, but by row instead
         public ListEntry defEntry;
         public bool useGroups = true;
+        public bool shopList = false;
+        public bool animList = false;
+        public int totRowCount = 0;
 
         //ID prefixes
         public const string patchAddPrefix = "patchAdd";
@@ -38,12 +41,23 @@ namespace AbraxisToolset.CSVFiles {
                     values = seperatedLines.ToArray()
                 };
 
-                //
                 defEntry.rowNumber = 1;
             }
 
             string defFirstValue = defEntry.values[0];
             useGroups = defFirstValue == "Group ID" || defFirstValue == "Group" || defFirstValue == "GroupID";
+
+
+            //Shop List is weird and makes its group names "ID" instead of "Group" soooooo, gotta make this check
+            if(fileName == "Shop List")
+            {
+                shopList = true;
+            }
+            else if(fileName == "Anim Actions")
+            {
+                animList = true;
+                useGroups = false;
+            }
 
             int emptyCount = 0;
             int noLineCount = 0;
@@ -92,7 +106,7 @@ namespace AbraxisToolset.CSVFiles {
                     Debug.LogError( "Failed to read entry " + lines[i] );
                 }
             }
-
+            totRowCount = rowCount;
             Debug.Log( string.Format( "File {0} had {1} empty entries, {2} no-line entries, {3} skips, and {4} normal entries, {5} total lines in the file", fileName, emptyCount, noLineCount, skippedCount, addedCount, lines.Length ) );
         }
 
@@ -110,11 +124,23 @@ namespace AbraxisToolset.CSVFiles {
                     values = seperatedLines.ToArray()
                 };
 
-                string entryIDPrefix = ATCSVUtil.GetPrefix( entry.ID );
-                string entryIDWithoutPrefix = ATCSVUtil.GetWithoutPrefix( entry.ID );
+                string entryIDPrefix = null;
+                string entryIDWithoutPrefix = null;
+
+                if (useGroups || shopList || animList)
+                {
+                    entryIDPrefix = ATCSVUtil.GetPrefix(entry.ID);
+                    entryIDWithoutPrefix = ATCSVUtil.GetWithoutPrefix(entry.ID);
+                    entry.rowNumber = ++totRowCount;
+                }
+                else
+                {
+                    entryIDPrefix = ATCSVUtil.GetPrefix(entry.group);
+                    entryIDWithoutPrefix = ATCSVUtil.GetWithoutPrefix(entry.group);
+                }
 
                 //Patch adding
-                if( entryIDPrefix == patchAddPrefix ) {
+                if ( entryIDPrefix == patchAddPrefix ) {
                     PatchAdd( entry, entryIDWithoutPrefix );
                 } else
                 //Patch over
@@ -140,25 +166,56 @@ namespace AbraxisToolset.CSVFiles {
                     lines.Add( line );
                 }
 
-                //Hey entries.Values doesnt take into account multiple of the same name
-                foreach( ListEntry entry in entriesByRow.Values ) {
-                    string line = string.Empty;
-                    List<string> components = new List<string>();
-                    //Append values
-                    foreach( string s in entry.values ) {
-                        StringUtil.SplitCSV( s, components );
-                        if( components.Count > 1 ) {
-                            line += '"' + s + '"' + ',';
-                        } else {
-                            line += s + ',';
+                //Hey entries.Values doesnt take into account multiple of the same name entriesByRow.Values
+                if (!animList)
+                {
+                    foreach (ListEntry entry in entries.Values)
+                    {
+                        string line = string.Empty;
+                        List<string> components = new List<string>();
+                        //Append values
+                        foreach (string s in entry.values)
+                        {
+                            StringUtil.SplitCSV(s, components);
+                            if (components.Count > 1)
+                            {
+                                line += '"' + s + '"' + ',';
+                            }
+                            else
+                            {
+                                line += s + ',';
+                            }
+                            //Debug.Log(string.Format("Filename {0} with Entry - {1} ", fileName, line)); 
                         }
-                        Debug.Log(string.Format("Filename {0} with Entry - {1} ", fileName, line)); 
+                        //Append new line
+                        lines.Add(line);
                     }
-                    //Append new line
-                    lines.Add(line);
+                } else
+                {
+                    foreach (ListEntry entry in animEntries.Values)
+                    {
+                        string line = string.Empty;
+                        List<string> components = new List<string>();
+                        //Append values
+                        foreach (string s in entry.values)
+                        {
+                            StringUtil.SplitCSV(s, components);
+                            if (components.Count > 1)
+                            {
+                                line += '"' + s + '"' + ',';
+                            }
+                            else
+                            {
+                                line += s + ',';
+                            }
+                            //Debug.Log(string.Format("Filename {0} with Entry - {1} ", fileName, line)); 
+                        }
+                        //Append new line
+                        lines.Add(line);
+                    }
                 }
-
-                Debug.Log( string.Format( "Writing {0} lines to file {1}, out of {2} entries", lines.Count, fileName, entriesByRow.Values.Count ) );
+                //EntriesByRow
+                // Debug.Log( string.Format( "Writing {0} lines to file {1}, out of {2} entries", lines.Count, fileName, entries.Values.Count ) );
                 File.WriteAllLines( path, lines.ToArray() );
             } catch( System.Exception e ) {
                 Debug.LogError( e );
@@ -167,13 +224,16 @@ namespace AbraxisToolset.CSVFiles {
 
         public void AddEntry(ListEntry entry) {
             try {
-                if( useGroups ) {
+                if (useGroups || shopList) {
                     //Add entry to entry dictionary
                     entries[entry.ID] = entry;
-                    entriesByRow[entry.rowNumber] = entry;
+                    //entriesByRow[entry.rowNumber] = entry;
+                } else if (animList)
+                {
+                    animEntries[entry.rowNumber] = entry;
                 } else {
                     entries[entry.group] = entry;
-                    entriesByRow[entry.rowNumber] = entry;
+                    //entriesByRow[entry.rowNumber] = entry;
                 }
             } catch( System.Exception e ) {
                 Debug.LogError( e );
@@ -188,10 +248,18 @@ namespace AbraxisToolset.CSVFiles {
             //If there's no entry to patch, just add this entry.
             if( !entries.ContainsKey( entryIDWithoutPrefix ) ) {
                 //Set ID to be the non-prefix version
-                if( useGroups ) {
-                    newEntry.values[0] = groupID;
+                if (useGroups)
+                {
+                    newEntry.values[0] = newEntry.group;
                     newEntry.values[1] = entryIDWithoutPrefix;
-                } else {
+                }
+                else if (shopList || animList)
+                {
+                    newEntry.values[0] = newEntry.group;
+                    newEntry.values[1] = entryIDWithoutPrefix;
+                }
+                else
+                {
                     newEntry.values[0] = entryIDWithoutPrefix;
                 }
 
@@ -216,12 +284,18 @@ namespace AbraxisToolset.CSVFiles {
         }
         public void PatchOver(ListEntry newEntry, string entryIDWithoutPrefix, string groupID = "MODDED") {
             //If there's no entry to patch, just add this entry.
-            if( !entries.ContainsKey( entryIDWithoutPrefix ) ) {
+            if( !entries.ContainsKey( entryIDWithoutPrefix )) {
                 //Set ID to be the non-prefix version
-                if( useGroups ) {
-                    newEntry.values[0] = groupID;
+                if( useGroups) {
+                    newEntry.values[0] = newEntry.group;
                     newEntry.values[1] = entryIDWithoutPrefix;
-                } else {
+                }
+                if (shopList || animList)
+                {
+                    newEntry.values[0] = newEntry.group;
+                    newEntry.values[1] = entryIDWithoutPrefix;
+                }
+                else {
                     newEntry.values[0] = entryIDWithoutPrefix;
                 }
 

@@ -39,7 +39,7 @@ namespace AbraxisToolset.CSVFiles {
             {"Spawn Tables" , spawnTablesCSV},
             {"ColorPalettes" , colorPalettsCSV},
             {"BH Objectives" , BHObjectives},
-            //{"Anim Actions" , animActionsCSV},
+            {"Anim Actions" , animActionsCSV},
             {"AI Regions" , AIRegionsCSV},
             {"AI Dispositions" , AIDispositionCSV},
             {"Credits" , creditsCSV},
@@ -79,7 +79,7 @@ namespace AbraxisToolset.CSVFiles {
                     if( csvFiles.ContainsKey( fileName ) ) {
                         try {
                             csvFiles[fileName].PatchFromFile( csvPath );
-                           // Debug.Log( string.Format( "Patched {0}.csv", fileName ) );
+                            Debug.Log( string.Format( "Patched {0}.csv", fileName ) );
                         } catch( System.Exception e ) {
                             Debug.LogError( e );
                         }
