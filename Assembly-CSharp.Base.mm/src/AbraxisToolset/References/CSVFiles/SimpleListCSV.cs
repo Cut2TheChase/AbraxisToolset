@@ -10,6 +10,7 @@ using UnityEngine;
 namespace AbraxisToolset.CSVFiles {
     public class SimpleListCSV: ICSVFile {
         public Dictionary<string, ListEntry> entries = new Dictionary<string, ListEntry>(); //Possibly make new class which holds ListEntry & a number, need a way to reference row #
+        public Dictionary<int, ListEntry> entriesByRow = new Dictionary<int, ListEntry>(); //Holds entries, but by row instead
         public ListEntry defEntry;
         public bool useGroups = true;
 
@@ -36,6 +37,9 @@ namespace AbraxisToolset.CSVFiles {
                 defEntry = new ListEntry() {
                     values = seperatedLines.ToArray()
                 };
+
+                //
+                defEntry.rowNumber = 1;
             }
 
             string defFirstValue = defEntry.values[0];
@@ -45,10 +49,12 @@ namespace AbraxisToolset.CSVFiles {
             int noLineCount = 0;
             int skippedCount = 0;
             int addedCount = 0;
+            int rowCount = 1;
 
             //Add entries
             for( int i = 1; i < lines.Length; i++ ) {
                 try {
+                    rowCount++; //Count row at beginning of each line check
                     if( lines[i].Length == 0 ) {
                         skippedCount++;
                         continue;
@@ -78,6 +84,7 @@ namespace AbraxisToolset.CSVFiles {
                         values = seperatedLines.ToArray()
                     };
 
+                    entry.rowNumber = rowCount; //If entry is to be added, give it a row #
                     AddEntry( entry );
                     addedCount++;
                 } catch( System.Exception e ) {
@@ -134,7 +141,7 @@ namespace AbraxisToolset.CSVFiles {
                 }
 
                 //Hey entries.Values doesnt take into account multiple of the same name
-                foreach( ListEntry entry in entries.Values ) {
+                foreach( ListEntry entry in entriesByRow.Values ) {
                     string line = string.Empty;
                     List<string> components = new List<string>();
                     //Append values
@@ -151,7 +158,7 @@ namespace AbraxisToolset.CSVFiles {
                     lines.Add(line);
                 }
 
-                Debug.Log( string.Format( "Writing {0} lines to file {1}, out of {2} entries", lines.Count, fileName, entries.Values.Count ) );
+                Debug.Log( string.Format( "Writing {0} lines to file {1}, out of {2} entries", lines.Count, fileName, entriesByRow.Values.Count ) );
                 File.WriteAllLines( path, lines.ToArray() );
             } catch( System.Exception e ) {
                 Debug.LogError( e );
@@ -163,8 +170,10 @@ namespace AbraxisToolset.CSVFiles {
                 if( useGroups ) {
                     //Add entry to entry dictionary
                     entries[entry.ID] = entry;
+                    entriesByRow[entry.rowNumber] = entry;
                 } else {
                     entries[entry.group] = entry;
+                    entriesByRow[entry.rowNumber] = entry;
                 }
             } catch( System.Exception e ) {
                 Debug.LogError( e );
@@ -250,9 +259,11 @@ namespace AbraxisToolset.CSVFiles {
 
         public class ListEntry {
             public string[] values;
+            public int rowNumber;
 
             public string group { get { return values[0]; } }
             public string ID { get { return values[1]; } }
+            public int row { get { return rowNumber; } }
         }
     }
 }
