@@ -337,12 +337,21 @@ namespace AbraxisToolset.CSVFiles {
                     //If the new element doesnt have what already is in the element being patched
                     if (patchEntry.values[i] != newEntry.values[i])
                     {
-                        //If the element is not empty, add a comma
-                        if (patchEntry.values[i] != null || patchEntry.values[i] != "")
-                            patchEntry.values[i] += ", ";
 
-                        patchEntry.values[i] += newEntry.values[i];
-                    }
+                        //If you are on Creature ID Ref on Anim Actions CSV
+                        if (i == 1)
+                        {
+                            //If the element is not empty, add a comma
+                            if (patchEntry.values[i] != null || patchEntry.values[i] != "")
+                                patchEntry.values[i] += ", ";
+
+                            patchEntry.values[i] += newEntry.values[i];
+
+                        }
+                        else
+                            patchEntry.values[i] = newEntry.values[i];
+
+                     }
                 }
 
                 animEntries[newEntry.row] = patchEntry;
@@ -372,7 +381,7 @@ namespace AbraxisToolset.CSVFiles {
                 //Get Item Entry to add to
                 ListEntry patchEntry = entries[entryIDWithoutPrefix];
 
-                int start = 0;
+                int start = 1;
                 
                 if( useGroups )
                     start++;
