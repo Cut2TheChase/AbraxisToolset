@@ -20,7 +20,7 @@ namespace AbraxisToolset.CSVFiles {
         //ID prefixes
         public const string patchAddPrefix = "patchAdd";
         public const string patchOverPrefix = "patchOver";
-
+        public const string patchAnimPrefix = "patchAnim";
         //Element Tags
         public const string elementRemoveTag = "[remove]";
 
@@ -127,11 +127,31 @@ namespace AbraxisToolset.CSVFiles {
                 string entryIDPrefix = null;
                 string entryIDWithoutPrefix = null;
 
-                if (useGroups || shopList || animList)
+                //If you are using groups or Shop List CSV
+                if (useGroups || shopList)
                 {
                     entryIDPrefix = ATCSVUtil.GetPrefix(entry.ID);
                     entryIDWithoutPrefix = ATCSVUtil.GetWithoutPrefix(entry.ID);
                     entry.rowNumber = ++totRowCount;
+                }
+                //If you are using Anim Actions CSV
+                else if(animList)
+                {
+                    entryIDPrefix = ATCSVUtil.GetPrefix(entry.ID);
+                    entryIDWithoutPrefix = ATCSVUtil.GetWithoutPrefix(entry.ID);
+                    //Puts row number specified in Anim Actions Patch to row number of new entry
+                    try
+                    {
+                        entry.rowNumber = Convert.ToInt32(entry.group);
+                    }
+                    catch (FormatException e)
+                    {
+                        Debug.Log("Error Patching Anim Actions - Input string is not a sequence of digits. " + entry.group);
+                    }
+                    catch (OverflowException e)
+                    {
+                        Debug.Log("Error Patching Anim Actions - Row Number cannot fir in an Int32." + entry.group);
+                    }
                 }
                 else
                 {
@@ -146,8 +166,10 @@ namespace AbraxisToolset.CSVFiles {
                 //Patch over
                 if( entryIDPrefix == patchOverPrefix ) {
                     PatchOver( entry, entryIDWithoutPrefix );
-                } else {
-
+                } else
+                //Patch Anim Actions CSV
+                if( entryIDPrefix == patchAnimPrefix) {
+                    AnimPatchAdd(entry, entryIDWithoutPrefix);
                 }
             }
         }
@@ -166,7 +188,7 @@ namespace AbraxisToolset.CSVFiles {
                     lines.Add( line );
                 }
 
-                //Hey entries.Values doesnt take into account multiple of the same name entriesByRow.Values
+                //When dealing with Not Anim Actions CSV
                 if (!animList)
                 {
                     foreach (ListEntry entry in entries.Values)
@@ -191,6 +213,7 @@ namespace AbraxisToolset.CSVFiles {
                         lines.Add(line);
                     }
                 } else
+                //When dealing with Anim Actions CSV
                 {
                     foreach (ListEntry entry in animEntries.Values)
                     {
@@ -214,7 +237,6 @@ namespace AbraxisToolset.CSVFiles {
                         lines.Add(line);
                     }
                 }
-                //EntriesByRow
                 // Debug.Log( string.Format( "Writing {0} lines to file {1}, out of {2} entries", lines.Count, fileName, entries.Values.Count ) );
                 File.WriteAllLines( path, lines.ToArray() );
             } catch( System.Exception e ) {
@@ -282,6 +304,50 @@ namespace AbraxisToolset.CSVFiles {
                 entries[entryIDWithoutPrefix] = patchEntry;
             }
         }
+        public void AnimPatchAdd(ListEntry newEntry, string entryIDWithoutPrefix, string groupID = "MODDED")
+        {
+            //If there's no entry using the specified row number to patch, just add this entry.
+            //Should use first element in Anim Actions CSV to find row to add entry to
+            if (!animEntries.ContainsKey(newEntry.row))
+            {
+                //Set ID to be the non-prefix version
+                    newEntry.rowNumber = ++totRowCount;
+                    newEntry.values[0] = groupID;
+                    newEntry.values[1] = entryIDWithoutPrefix;
+
+                //Add the entry
+                AddEntry(newEntry);
+            }
+            else
+            {
+                newEntry.values[1] = entryIDWithoutPrefix;
+                Debug.Log("WAKADOO - newEntry.values[0] = " + newEntry.values[0] + " & newEntry.values[1] = " + newEntry.values[1]);
+
+                //Get Item Entry to add to
+                ListEntry patchEntry = animEntries[newEntry.row];
+
+                int start = 1;
+                
+                if (useGroups)
+                    start++;
+
+                //Add elements to existing entry
+                for (int i = start; i < newEntry.values.Length; i++)
+                {
+                    //If the new element doesnt have what already is in the element being patched
+                    if (patchEntry.values[i] != newEntry.values[i])
+                    {
+                        //If the element is not empty, add a comma
+                        if (patchEntry.values[i] != null || patchEntry.values[i] != "")
+                            patchEntry.values[i] += ", ";
+
+                        patchEntry.values[i] += newEntry.values[i];
+                    }
+                }
+
+                animEntries[newEntry.row] = patchEntry;
+            }
+        }
         public void PatchOver(ListEntry newEntry, string entryIDWithoutPrefix, string groupID = "MODDED") {
             //If there's no entry to patch, just add this entry.
             if( !entries.ContainsKey( entryIDWithoutPrefix )) {
@@ -290,7 +356,7 @@ namespace AbraxisToolset.CSVFiles {
                     newEntry.values[0] = newEntry.group;
                     newEntry.values[1] = entryIDWithoutPrefix;
                 }
-                if (shopList || animList)
+                else if (shopList || animList)
                 {
                     newEntry.values[0] = newEntry.group;
                     newEntry.values[1] = entryIDWithoutPrefix;
@@ -306,7 +372,8 @@ namespace AbraxisToolset.CSVFiles {
                 //Get Item Entry to add to
                 ListEntry patchEntry = entries[entryIDWithoutPrefix];
 
-                int start = 1;
+                int start = 0;
+                
                 if( useGroups )
                     start++;
 
