@@ -28,6 +28,9 @@ namespace AbraxisToolset.CSVFiles {
         public static readonly SimpleListCSV creditsCSV = new SimpleListCSV();
         public static readonly SimpleListCSV rigsCSV = new SimpleListCSV();
 
+        public static readonly SimpleListCSV stringsCSV = new SimpleListCSV();
+        public static readonly SimpleListCSV worldLocationsCSV = new SimpleListCSV();
+
         public static readonly MultiElementListCSV variablesCSV = new MultiElementListCSV();
         public static readonly MultiElementListCSV lootTableCSV = new MultiElementListCSV();
 
@@ -45,7 +48,9 @@ namespace AbraxisToolset.CSVFiles {
             {"Credits" , creditsCSV},
             {"Rigs" , rigsCSV},
             {"Variables", variablesCSV},
-            {"Loot Tables", lootTableCSV}
+            {"Loot Tables", lootTableCSV},
+            {"Strings" , stringsCSV},
+            {"World Locations" , worldLocationsCSV}
         };
 
         //loot tables, variables
@@ -62,8 +67,18 @@ namespace AbraxisToolset.CSVFiles {
             //Load CSV Files
             {
                 foreach( KeyValuePair<string, ICSVFile> KVP in csvFiles ) {
-                    string path = string.Format( "TUNING/{0}.csv", KVP.Key );
-                    KVP.Value.ReadFromFile( ResolveResourcePath( path ) );
+
+                    if (KVP.Key != "Strings" && KVP.Key != "World Locations")
+                    {
+                        string path = string.Format("TUNING/{0}.csv", KVP.Key);
+                        KVP.Value.ReadFromFile(ResolveResourcePath(path));
+                    }
+                    else
+                    {
+                        string path = string.Format("text/{0}.csv", KVP.Key);
+                        KVP.Value.ReadFromFile(ResolveResourcePath(path));
+                    }
+
                 }
             }
 
@@ -90,8 +105,16 @@ namespace AbraxisToolset.CSVFiles {
             //Write patched CSV data to disk
             {
                 foreach( KeyValuePair<string, ICSVFile> KVP in csvFiles ) {
-                    string path = string.Format( "TUNING/{0}.csv", KVP.Key );
-                    KVP.Value.WriteToFile( ResolveResourcePath( path ) );
+                    if (KVP.Key != "Strings" && KVP.Key != "World Locations")
+                    {
+                        string path = string.Format("TUNING/{0}.csv", KVP.Key);
+                        KVP.Value.WriteToFile(ResolveResourcePath(path));
+                    }
+                    else
+                    {
+                        string path = string.Format("text/{0}.csv", KVP.Key);
+                        KVP.Value.WriteToFile(ResolveResourcePath(path));
+                    }
                 }
             }
         }

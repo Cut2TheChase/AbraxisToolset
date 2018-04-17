@@ -5,7 +5,9 @@ using System.Text;
 using System.IO;
 using HBS.Text;
 using HBS.DebugConsole;
+using Necro.UI;
 using UnityEngine;
+using System.Text.RegularExpressions;
 
 namespace AbraxisToolset.CSVFiles {
     public class SimpleListCSV: ICSVFile {
@@ -65,45 +67,81 @@ namespace AbraxisToolset.CSVFiles {
             int addedCount = 0;
             int rowCount = 1;
 
+
             //Add entries
-            for( int i = 1; i < lines.Length; i++ ) {
-                try {
-                    rowCount++; //Count row at beginning of each line check
-                    if( lines[i].Length == 0 ) {
-                        skippedCount++;
-                        continue;
-                    }
-                    List<string> seperatedLines = new List<string>();
-                    StringUtil.SplitCSV( lines[i], seperatedLines );
-
-                    if( seperatedLines.Count <= 1 ) {
-                        noLineCount++;
-                        continue;
-                    }
-
-                    bool isEmpty = true;
-                    foreach( string s in seperatedLines ) {
-                        if( s != string.Empty ) {
-                            isEmpty = false;
-                            break;
+            if (fileName != "Strings")
+            {
+                for (int i = 1; i < lines.Length; i++)
+                {
+                    try
+                    {
+                        rowCount++; //Count row at beginning of each line check
+                        if (lines[i].Length == 0)
+                        {
+                            skippedCount++;
+                            continue;
                         }
-                    }
-                    if( isEmpty ) {
-                        emptyCount++;
-                        continue;
-                    }
+                        List<string> seperatedLines = new List<string>();
 
-                    //Create entry
-                    ListEntry entry = new ListEntry() {
+                        StringUtil.SplitCSV(lines[i], seperatedLines);
+
+                        if (seperatedLines.Count <= 1)
+                        {
+                            noLineCount++;
+                            continue;
+                        }
+
+                        bool isEmpty = true;
+                        foreach (string s in seperatedLines)
+                        {
+                            if (s != string.Empty)
+                            {
+                                isEmpty = false;
+                                break;
+                            }
+                        }
+                        if (isEmpty)
+                        {
+                            emptyCount++;
+                            continue;
+                        }
+
+                        //Create entry
+                        ListEntry entry = new ListEntry()
+                        {
+                            values = seperatedLines.ToArray()
+                        };
+
+                        entry.rowNumber = rowCount; //If entry is to be added, give it a row #
+                        AddEntry(entry);
+                        addedCount++;
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogError(e);
+                        Debug.LogError("Failed to read entry " + lines[i]);
+                    }
+                }
+            }
+            else
+            {
+                List<string> seperatedLines = new List<string>();
+
+                string file_contents = GetFile(path);
+                List<String> headers = ParseLine(file_contents.Substring(0, file_contents.IndexOf('\n')));
+                List<String> file_lines = SplitFileIntoLines(file_contents, headers.Count);
+                file_lines = TrimEntries(file_lines);
+
+                for (int i = 1; i < file_lines.Count(); i++)
+                {
+                    seperatedLines = ParseLine(file_lines[i]);
+                    ListEntry entry = new ListEntry()
+                    {
                         values = seperatedLines.ToArray()
                     };
 
-                    entry.rowNumber = rowCount; //If entry is to be added, give it a row #
-                    AddEntry( entry );
+                    AddEntry(entry);
                     addedCount++;
-                } catch( System.Exception e ) {
-                    Debug.LogError( e );
-                    Debug.LogError( "Failed to read entry " + lines[i] );
                 }
             }
             totRowCount = rowCount;
@@ -207,7 +245,6 @@ namespace AbraxisToolset.CSVFiles {
                             {
                                 line += s + ',';
                             }
-                            //Debug.Log(string.Format("Filename {0} with Entry - {1} ", fileName, line)); 
                         }
                         //Append new line
                         lines.Add(line);
@@ -231,7 +268,6 @@ namespace AbraxisToolset.CSVFiles {
                             {
                                 line += s + ',';
                             }
-                            //Debug.Log(string.Format("Filename {0} with Entry - {1} ", fileName, line)); 
                         }
                         //Append new line
                         lines.Add(line);
@@ -321,7 +357,6 @@ namespace AbraxisToolset.CSVFiles {
             else
             {
                 newEntry.values[1] = entryIDWithoutPrefix;
-                Debug.Log("WAKADOO - newEntry.values[0] = " + newEntry.values[0] + " & newEntry.values[1] = " + newEntry.values[1]);
 
                 //Get Item Entry to add to
                 ListEntry patchEntry = animEntries[newEntry.row];
@@ -405,7 +440,10 @@ namespace AbraxisToolset.CSVFiles {
 
                 entries[entryIDWithoutPrefix] = patchEntry;
             }
+
+
         }
+
 
         public class ListEntry {
             public string[] values;
@@ -415,5 +453,98 @@ namespace AbraxisToolset.CSVFiles {
             public string ID { get { return values[1]; } }
             public int row { get { return rowNumber; } }
         }
+
+
+        //PenutReaper's CSV Parser for Strings.csv
+        public static List<string> ParseLine(string line)
+        {
+            List<String> lines = new List<string>();
+
+            int prev_pos = 0;
+            int cur_pos = 0;
+            int max_pos = line.Length;
+            int comma_count = 0;
+            int speech = 0;
+
+            while (cur_pos < max_pos)
+            {
+                string cur_char = GetChar(line, cur_pos);
+
+                if (cur_char == ",")
+                {
+                    if (speech == 0) comma_count++;
+                }
+
+                if (cur_char == "\"")
+                {
+                    speech = 1 - speech;
+                }
+
+                if (comma_count == 1)
+                {
+                    lines.Add(line.Substring(prev_pos, cur_pos - prev_pos + 0));
+                    prev_pos = cur_pos + 1;
+                    comma_count = 0;
+                }
+
+                cur_pos++;
+            }
+
+            lines = TrimEntries(lines);
+            return lines;
+        }
+
+        private static List<string> TrimEntries(List<string> file_lines)
+        {
+            List<string> output = new List<string>();
+
+            foreach (string line in file_lines)
+            {
+                output.Add(line.Trim());
+            }
+
+            return output;
+        }
+
+        private static List<string> SplitFileIntoLines(string file_contents, int header_count)
+        {
+            List<String> lines = new List<string>();
+
+            int prev_pos = 0;
+            int cur_pos = 0;
+            int max_pos = file_contents.Length;
+            int comma_count = 0;
+            int speech = 0;
+
+            while (cur_pos < max_pos)
+            {
+                string cur_char = GetChar(file_contents, cur_pos);
+
+                if (cur_char == ",")
+                {
+                    if (speech == 0) comma_count++;
+                }
+
+                if (cur_char == "\"")
+                {
+                    speech = 1 - speech;
+                }
+
+                if (comma_count == header_count)
+                {
+                    lines.Add(file_contents.Substring(prev_pos, cur_pos - prev_pos + 1));
+                    prev_pos = cur_pos + 1;
+                    comma_count = 0;
+                }
+
+                cur_pos++;
+            }
+
+            return lines;
+        }
+
+        private static string GetChar(string input, int cur_pos) => input.Substring(cur_pos, 1);
+        private static string GetFile(string path) => File.ReadAllText(path);
     }
+
 }
