@@ -1,90 +1,47 @@
 # AbraxisToolset
-The base toolset for the game, which includes a mod loader and a few other bits and pieces.
+The base toolset for the game, which includes a CSV parser/patcher and a few other bits and pieces.
 
 Feel free to support me and my projects through [my Patreon](https://www.patreon.com/zerndererer). I have no plans to continue development on this specific project, for now.
 
+This version of AbraxisToolset has been edited by me, CutToTheChase, to further encourage mod/patch development of Necropolis while Zandra has focused on other projects.
+
 # Setup
+For setup, you will first need to install Partiality (You can learn how to do that here - https://github.com/PartialityModding/PartialityLauncher). Once that is done and it is attached to Necropolis, just stick the AbraxisToolset.dll into the "Patches" folder and that's it! You run the game through the Partiality Launcher and Abraxis Toolset should be ready to go.
 
-# Modding
-Normally, when adding new stuff, you won't need to patch the game, so it's a better idea to just create a mod.
+# Regular Modding/Patching
+All method and code modding/Patching has now been moved to Partiality, as AbraxisToolset has been gutted to simply focus on Necropolis specific stuff, especially CSVs.
 
-**Step 1** : Make sure you've patched the game with something that loads mods (AbraxisToolset comes with a mod loader, for example)
+If you'd like to learn how to use Partiality for modding purposes, check out the github and look at the "Tutorial" file - https://github.com/PartialityModding/PartialityLauncher
 
-**Step 2** : Make a new C# project, set it to build as a .dll (Class Library (.NET framework) for Visual Studio)
+# CSV Patching
+Now here is the bread and butter of AbraxisToolset. Necropolis gathers a lot of its' data about Creatures, Items, etc, from these few CSV files that are within the game's folders. By editing/adding to these files, we can fundamentally change how Necropolis plays and, along with regular mods, create new functionality that can exceed what the previous version of the game could do.
 
-**Step 3** : MAKE SURE the C# project's .net target version is 2.5 or 3. (In Visual Studio, Project > Project Properties (At the bottom) > Target Framework)
+With that in mind, familiarize yourself with these CSVs, they will come in handy, and you should be able to view them by going to this file path in your Necropolis folder - Necropolis/Necropolis_Data/StreamingAssets/data
 
-**Step 4** : Add the patched game as a reference ([Necropolis Folder]/Necropolis_Data/Managed/ is the folder you want to look for, Assembly-CSharp.dll is the Necropolis code, UnityEngine.dll is the Unity Engine, and the others are just whatever they are.)
+To make a CSV patch, you will need to create a new CSV with the name of the CSV you want to patch, and place it in the "Mods" folder (I would suggest also putting it in there within a folder that's labeled with your mod name for easy organizing, as well as that can be a place to put in any .dll mods associated with you CSV patch).
 
-**Step 5** : Create your mod from there! If you're using AbraxisToolset, any class that inherits from AbraxisToolset.ATMod has a few functions that call (Init will call before anything else, OnLoad will call once all other Init's have been called, Update will call every frame.)
+## Patching How-To
+So if you want to patch the CSVs, AbraxisToolset has three prefixes you can use- patchAdd, patchOver, and patchAnim. These three prefixes will be your friends :D
 
-**Step 6** : Build your mod once finished, and just copy it to the "mods" folder in Necropolis.
+The way each of these patches work is simple, if you want to add or write over anything to a CSV entry, you simply take the ID of that row (usually the first field, but with CSVs that start with "Group"/"GroupID"/etc the ID field is second. (EXCEPT FOR SHOP LIST.CSV, THAT ONE IS JUST WEIRD, PUT THE PREFIX ON THE ITEM NOT THE ID)) and in front of it put a prefix.
 
-# Patching
+So for example, if we take Creatures.CSV, lets say we wanted to mess with a Gemeater, specifically GemeaterBull. We would then go into our new CSV also titled Creatures, write down the group in the first field, go to the second field (because that's the ID for this CSV) and put my desired prefix in front of it, so GemeaterBull would become patchOver_GemeaterBull, and then I could fill in the fields on that row that I would want to overwrite.
 
-# ***A FEW WARNINGS***
+In cases that you want to add something completely new to the CSV, using patchAdd or patchOver is fine, as it will simply see that the ID you used isn't in the CSV and will make a new entry. patchAnim is a lil' special, and we will get to that in a bit.
 
-`0x0ade has said that technically patching will just keep the most recent patch, with other patches just being lost or something. In general, if you can, avoid making a patch for a game. Make mods to be loaded instead. I'll try to keep up with AbraxisToolset, and merge any changes that seem like they will improve it (Adding hooks that people want, adding new ways to interact with the default code, ect)`
+### patchOver Prefix
+The patchOver prefix is used to write over fields on a particular row in a CSV. 
 
-**Now back to the tutorial**
+so in this case, lets say you wanted to give the SlowHookedBlade Speed -9001 rather than Speed -20. In your new Item CSV, write down a row with the first field being the group ShortSword (because Items.csv uses groups), then with the second entry being the ID you write down patchOver_SlowHookedBlade. Then simply go/count to the field where Passive Traits would be, and just write down Speed -9001. With this CSV in your Mods folder, when you run the game the blade should now have everything the same except that now when you check the CSV it's passive trait has been changed, and in the game this will translate.
 
-I don't know EVERYTHING about patching, but I know enough to get by.
-The first thing to note is that any class you put into the Assembly-CSharp.mm project will automatically be put into the game, even if you don't add any attributes to them.
-To patch existing classes (viewed through [DNSpy](https://github.com/0xd4d/dnSpy) or the like), there's a few steps (5, 6, and 7).
+There is also a special case scenario where you just might want to, delete a field. Leaving it blank won't do anything, as it will skip over it, but if you write in the field "[remove]" the CSV patcher will take that as you want to erase the field entirely.
 
-**Step 1** : Fork/Clone the project. If you don't know how to do this, you're going to need to learn how to use Git, and this isn't the place for that.
+### patchAdd Prefix
+So lets say you don't want to write over a row, but rather just add some values to one/a few if it's fields. The patchAdd prefix does just that!
 
-**Step 2** : Copy "Assembly-CSharp.dll" and "UnityEngine.dll" from `[NecropolisFolder]/Necropolis_Data/Managed` to `lib-projs` in the project folder.
+So lets say you wanted to change the Game Action PassUnseen to not only make you invisible but also increase your jump. You simply, in your new Game Actions CSV, write the first field as patchAdd_PassUnseen (because that's the ID), then skip over to the field where Params would be and simply write JumpModifier +100. Now when you turn invisible you can also jump really high!
 
-**Step 3** : **BACKUP "Assembly-CSharp.dll" AND "UnityEngine.dll"** If you don't back these up, you'll have to re-install the game to un-patch it.
+### patchAnim & Special Notes
 
-**Step 4** : Open the project with whatever you want, I use Visual Studio 2017. You can use notepad if you like.
 
-**Step 5** : Create a new class, and call it "patch_[Original Class Name]" (We're going to use the name "ExampleClass for this, so, patch_ExampleClass)
-```
-public class patch_ExampleClass {
 
-}
-```
-
-**Step 6** : Add the MonoMod.MonoModPatch attribute to the class. You'll need to supply the original class' full name for the argument, too. Adding `global::` isn't required as far as I know, but it's explicit. And being explicit is a good idea.
-```
-[MonoMod.MonoModPatch("global:patch_ExampleClass")]
-public class patch_ExampleClass {
-
-}
-```
-
-**Step 7** : Patch/add methods/ect. 
-
-This one's got a few sub-steps. If you want to patch over an existing method, you'll need to make a place for MonoMod to put the original function, unless you don't need it.
-```
-[MonoMod.MonoModPatch("global:patch_ExampleClass")]
-public class patch_ExampleClass {
-  
-  public extern void orig_ExampleMethod();
-  public void ExampleMethod(){
-    //Do some code.
-  }
-}
-```
-This will tell MonoMod to put the original ExampleMethod code inside orig_ExampleMethod, and then put your code where it used to be. So now, in the game, whenever anything calls ExampleClass.ExampleMethod, it will call your code, not the original code.
-If you need to call the original code for ExampleMethod, all you need to do is call orig_ExampleMethod.
-If you want to add a new function, you don't need anything special, just make a new method like you normally would. MonoMod will patch it into the class.
-
-If you need access to the variables or other methods from the original class, all you need to do is make the patch class inherit the original class like this : `public class patch_ExampleClass : ExampleClass`
-Note that MonoMod will automatically fix references between patch and original classes. If you call patch_ExampleClass.ExampleMethod in your code somewhere, MonoMod will automatically replace that with ExampleClass.ExampleMethod.
-
-**Step 8** : Once you're done with writing all your code, build it into a .dll (It should be called Assembly-CSharp.mm.dll)
-
-**Step 9** : Patch the game (Either using the [AbraxisToolsetInstaller](https://github.com/NecropolisModding/AbraxisToolsetInstaller), or using MonoMod.exe
-
-**If using AbraxisToolsetInstaller** : Run the installer, and just follow the instructions. When it asks if you want to to install AbraxisToolset or a custom Toolset, choose custom.
-
-**If using MonoMod.exe** Build MonoMod, and go to the build folder. 
-
-  **1**:Copy the Assembly-CSharp.dll from the Necropolis folder (or lib-projs, if you want) into the folder that has MonoMod.exe
-
-  **2**:Copy the built patch (Assembly-CSharp.mm.dll) into the same folder.
-
-  **3**:Run MonoMod.exe
