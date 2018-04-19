@@ -1,7 +1,7 @@
 # AbraxisToolset
 The base toolset for the game, which includes a CSV parser/patcher and a few other bits and pieces.
 
-Feel free to support me and my projects through [my Patreon](https://www.patreon.com/zerndererer). I have no plans to continue development on this specific project, for now.
+Feel free to support Zandra (The original creator of this project) through [his Patreon](https://www.patreon.com/zerndererer). He has no plans to continue development on this specific project, for now.
 
 This version of AbraxisToolset has been edited by me, CutToTheChase, to further encourage mod/patch development of Necropolis while Zandra has focused on other projects.
 
