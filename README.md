@@ -42,6 +42,20 @@ So lets say you don't want to write over a row, but rather just add some values 
 So lets say you wanted to change the Game Action PassUnseen to not only make you invisible but also increase your jump. You simply, in your new Game Actions CSV, write the first field as patchAdd_PassUnseen (because that's the ID), then skip over to the field where Params would be and simply write JumpModifier +100. Now when you turn invisible you can also jump really high!
 
 ### patchAnim & Special Notes
+As of right now, because of how I thought I needed to rework the Anim Actions CSV, it does not use the normal patchOver or patchAdd (I probably will, in the future, have it where I can bring it back to that, but for now this will be better until completely new entries need to be made)
+
+So patchAnim is for specifically patching the Anim Actions CSV. Anim Actions is interesting because it controls a lot of things in terms of what attacks a Creature can do and how those attacks affect certain game aspects. 
+
+With your new Anim Action CSV, if you want to edit a row you must first in the group column write what row number you want to edit. Then, in the next field, write patchAnim_ and then whatever creature you want to add, or you can just leave the second part blank if you want to just edit values. The rest of the values work like patchOver, so it will  write over any other field you write to.
+
+It's a bit confusing, but trust me when I say this was the easiest way to implement it.
+
+-SPECIAL NOTES-
+I will try to add in patching in completely new enemies for patchAnim once that's needed, but for now I feel like it's fine the way it is.
+
+There are some wonky multilist CSVs, such as Loot Tables.csv, which may be a little confusing to figure out the syntax for. I will be sure to leave an example in my test mod for you guys to look at.
+
+Finally, if there are any more questions, please feel free to message me on Necropolis Discord channel, particularly in the modding channel, and I'll be happy to answer any questions/concerns.
 
 
 
