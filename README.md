@@ -55,6 +55,9 @@ I will try to add in patching in completely new enemies for patchAnim once that'
 
 There are some wonky multilist CSVs, such as Loot Tables.csv, which may be a little confusing to figure out the syntax for. I will be sure to leave an example in my test mod for you guys to look at.
 
+#### TEST MOD
+I've included a test mod that will patch over CSVs in Necropolis, they dont do anything too crazy but they just show you how to do some simple stuff :) Feel free to throw that entire folder into your Partiality Mods folder and Abraxis Toolset should use them to patch your CSVs!
+
 Finally, if there are any more questions, please feel free to message me on Necropolis Discord channel, particularly in the modding channel, and I'll be happy to answer any questions/concerns.
 
 
