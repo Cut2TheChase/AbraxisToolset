@@ -334,6 +334,11 @@ namespace AbraxisToolset.CSVFiles {
 
                 //Add elements to existing entry
                 for( int i = start; i < newEntry.values.Length; i++ ) {
+
+                    //If the element is not empty, add a comma
+                    if (patchEntry.values[i] != null || patchEntry.values[i] != "")
+                        patchEntry.values[i] += ", ";
+
                     patchEntry.values[i] += newEntry.values[i];
                 }
 
@@ -342,12 +347,18 @@ namespace AbraxisToolset.CSVFiles {
         }
         public void AnimPatchAdd(ListEntry newEntry, string entryIDWithoutPrefix, string groupID = "MODDED")
         {
+
+            if(newEntry.values.Length <=1)
+           {
+                return;
+            }
+
             //If there's no entry using the specified row number to patch, just add this entry.
             //Should use first element in Anim Actions CSV to find row to add entry to
             if (!animEntries.ContainsKey(newEntry.row))
             {
                 //Set ID to be the non-prefix version
-                    newEntry.rowNumber = ++totRowCount;
+                    newEntry.rowNumber = animEntries.Count + 1;
                     newEntry.values[0] = groupID;
                     newEntry.values[1] = entryIDWithoutPrefix;
 
@@ -384,12 +395,26 @@ namespace AbraxisToolset.CSVFiles {
 
                         }
                         else
-                            patchEntry.values[i] = newEntry.values[i];
+                        {
+                            string element = newEntry.values[i];
+
+                            //If element is empty, skip it.
+                            if (element == string.Empty)
+                                continue;
+                            //If the element is the tag to remove, remove the original element.
+                            else if (element == elementRemoveTag)
+                                patchEntry.values[i] = string.Empty;
+                            //If the other two checks aren't true, just overwrite.
+                            else
+                                patchEntry.values[i] = element;
+
+                        }
 
                      }
                 }
 
                 animEntries[newEntry.row] = patchEntry;
+                
             }
         }
         public void PatchOver(ListEntry newEntry, string entryIDWithoutPrefix, string groupID = "MODDED") {
