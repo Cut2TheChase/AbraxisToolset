@@ -6,7 +6,7 @@ Feel free to support Zandra (The original creator of this project) through [his 
 This version of AbraxisToolset has been edited by me, CutToTheChase, to further encourage mod/patch development of Necropolis while Zandra has focused on other projects.
 
 # Setup
-For setup, you will first need to install Partiality (You can learn how to do that here - https://github.com/PartialityModding/PartialityLauncher). Once that is done and it is attached to Necropolis, just stick the AbraxisToolset.dll into the "Patches" folder and that's it! You run the game through the Partiality Launcher and Abraxis Toolset should be ready to go.
+For setup, you will first need to install Partiality ver 0.3.4 (You can learn how to do that here - https://github.com/PartialityModding/PartialityLauncher) and run Necropolis once after patching the game with it. After that, just stick the AbraxisToolset.dll into the "Mods" folder, check off the mod in the Partiality Launcher, and that's it! Patch the game through the Partiality Launcher and AbraxisToolset should be ready to go.
 
 # Regular Modding/Patching
 All method and code modding/Patching has now been moved to Partiality, as AbraxisToolset has been gutted to simply focus on Necropolis specific stuff, especially CSVs.
@@ -54,6 +54,9 @@ It's a bit confusing, but trust me when I say this was the easiest way to implem
 I will try to add in patching in completely new enemies for patchAnim once that's needed, but for now I feel like it's fine the way it is.
 
 There are some wonky multilist CSVs, such as Loot Tables.csv, which may be a little confusing to figure out the syntax for. I will be sure to leave an example in my test mod for you guys to look at.
+
+### MonoMod Utils
+Abraxis Toolset now has some Utils that you can use from Necropolis! As I was making my Zeke's New Throwables mod I realized there were some things that I had to call from DataManager that were private, so I had AbraxisToolset and my mod use MonoMod.MonoInterop so my mod as well as others wouldnt have to patch the game for those! If you need to look at how to use it, you can refer to my Zeke's New Throwables mod or just talk to me.
 
 #### TEST MOD
 I've included a test mod that will patch over CSVs in Necropolis, they dont do anything too crazy but they just show you how to do some simple stuff :) Feel free to throw that entire folder into your Partiality Mods folder and Abraxis Toolset should use them to patch your CSVs!
