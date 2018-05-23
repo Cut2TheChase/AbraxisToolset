@@ -247,7 +247,7 @@ namespace AbraxisToolset.CSVFiles {
                 for( int i = 1; i < newEntry.firstValues.Length; i++ ) {
 
                     //If its in the first line (Because some of them just comma list it out) check to see if its not empty and use a comma if not
-                    if(i == 1 && (patchEntry.firstValues[i] != null || patchEntry.firstValues[i] != ""))
+                    if(i == 1 && (patchEntry.firstValues[i] != null && patchEntry.firstValues[i] != ""))
                         patchEntry.firstValues[i] += ", ";
 
                         patchEntry.firstValues[i] += newEntry.firstValues[i];
@@ -256,6 +256,9 @@ namespace AbraxisToolset.CSVFiles {
                 //Add other entries
                 for( int i = 0; i < newEntry.otherEntries.Length; i++ ) {
                     for( int j = 0; j < newEntry.otherEntries[i].Length; j++ ) {
+                        //If we are not on the first element, add a comma if there is already elements
+                        if (i > 0 && (newEntry.otherEntries[i][j] != null && newEntry.otherEntries[i][j] != ""))
+                            patchEntry.otherEntries[i][j] += ", ";
                         patchEntry.otherEntries[i][j] += newEntry.otherEntries[i][j];
                     }
                 }
