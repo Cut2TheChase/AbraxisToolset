@@ -41,6 +41,11 @@ So lets say you don't want to write over a row, but rather just add some values 
 
 So lets say you wanted to change the Game Action PassUnseen to not only make you invisible but also increase your jump. You simply, in your new Game Actions CSV, write the first field as patchAdd_PassUnseen (because that's the ID), then skip over to the field where Params would be and simply write JumpModifier +100. Now when you turn invisible you can also jump really high!
 
+### MutltiElement List Patching (LootTables.csv & Variables.csv)
+So if you look at both the LootTables CSV and Variables CSV, you will see they are not like other CSVs. The lists are both horizontal and vertical! So how on earth do you patch that? Well, all you need to do is create your patch CSV in the same format as the multielement CSV, with white spaces in the same places, and simply as before put either the patchAdd or patchOver prefix in front of the id name within the first column.
+
+If you dont want to affect a certain row for whatever reason, or need to go down to say the third row in a given id's list,  simply put "[skip]" in the field you want skip over. The parser will go over that field and not affect it.
+
 ### patchAnim & Special Notes
 As of right now, because of how I thought I needed to rework the Anim Actions CSV, it does not use the normal patchOver or patchAdd (I probably will, in the future, have it where I can bring it back to that, but for now this will be better until completely new entries need to be made)
 
