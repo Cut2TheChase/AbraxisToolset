@@ -18,6 +18,7 @@ namespace AbraxisToolset.CSVFiles {
 
         //Element Tags
         public const string elementRemoveTag = "[remove]";
+        public const string elementSkipTag = "[skip]";
 
         public void ReadFromFile(string path) {
             if( !File.Exists( path ) )
@@ -247,9 +248,12 @@ namespace AbraxisToolset.CSVFiles {
                 for( int i = 1; i < newEntry.firstValues.Length; i++ ) {
 
                     //If its in the first line (Because some of them just comma list it out) check to see if its not empty and use a comma if not
-                    if(i == 1 && (patchEntry.firstValues[i] != null && patchEntry.firstValues[i] != ""))
+                    if (i == 1 && (newEntry.firstValues[i] != string.Empty && newEntry.firstValues[i] != elementSkipTag))
                         patchEntry.firstValues[i] += ", ";
 
+                    if (newEntry.firstValues[i] == elementSkipTag)
+                        patchEntry.firstValues[i] += string.Empty;
+                    else
                         patchEntry.firstValues[i] += newEntry.firstValues[i];
                 }
 
@@ -257,9 +261,13 @@ namespace AbraxisToolset.CSVFiles {
                 for( int i = 0; i < newEntry.otherEntries.Length; i++ ) {
                     for( int j = 0; j < newEntry.otherEntries[i].Length; j++ ) {
                         //If we are not on the first element, add a comma if there is already elements
-                        if (i > 0 && (newEntry.otherEntries[i][j] != null && newEntry.otherEntries[i][j] != ""))
+                        if ((newEntry.otherEntries[i][j] != string.Empty && newEntry.otherEntries[i][j] != elementSkipTag))
                             patchEntry.otherEntries[i][j] += ", ";
-                        patchEntry.otherEntries[i][j] += newEntry.otherEntries[i][j];
+
+                        if (newEntry.otherEntries[i][j] == elementSkipTag)
+                            patchEntry.otherEntries[i][j] += string.Empty;
+                        else
+                            patchEntry.otherEntries[i][j] += newEntry.otherEntries[i][j];
                     }
                 }
 
@@ -285,7 +293,7 @@ namespace AbraxisToolset.CSVFiles {
                     string element = newEntry.firstValues[i];
 
                     //If element is empty, skip it.
-                    if( element == string.Empty )
+                    if( element == string.Empty || element == elementSkipTag)
                         continue;
                     //If the element is the tag to remove, remove the original element.
                     else if( element == elementRemoveTag )
@@ -302,7 +310,7 @@ namespace AbraxisToolset.CSVFiles {
                         string element = newEntry.otherEntries[i][j];
 
                         //If element is empty, skip it.
-                        if( element == string.Empty )
+                        if( element == string.Empty || element == elementSkipTag)
                             continue;
                         //If the element is the tag to remove, remove the original element.
                         else if( element == elementRemoveTag )
