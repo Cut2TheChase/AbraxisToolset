@@ -46,6 +46,8 @@ So if you look at both the LootTables CSV and Variables CSV, you will see they a
 
 If you dont want to affect a certain row for whatever reason, or need to go down to say the third row in a given id's list,  simply put "[skip]" in the field you want skip over. The parser will go over that field and not affect it.
 
+WARNING - As of this moment, you can not add new rows to an id. If an id has 4 different rows associated with it, you can not add more, you simply have to edit what is already given. Otherwise, you will get an array out of bounds exception. If it is requested, I can work on fixing this, but it would take quite a decent amount of effort for something that would have reasonably few uses, so unless I'm told it's needed by someone in particular I will leave it as is. That being said, you can still make completely new ids that can have as many rows as you want.
+
 ### patchAnim & Special Notes
 As of right now, because of how I thought I needed to rework the Anim Actions CSV, it does not use the normal patchOver or patchAdd (I probably will, in the future, have it where I can bring it back to that, but for now this will be better until completely new entries need to be made)
 
