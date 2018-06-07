@@ -15,6 +15,7 @@ namespace AbraxisToolset.CSVFiles {
         //ID prefixes
         public const string patchAddPrefix = "patchAdd";
         public const string patchOverPrefix = "patchOver";
+        public const string patchAppendPrefix = "patchAppend";
 
         //Element Tags
         public const string elementRemoveTag = "[remove]";
@@ -128,7 +129,7 @@ namespace AbraxisToolset.CSVFiles {
                         //Append other values
                         foreach( string[] otherS in entry.otherEntries ) {
                             line = string.Empty;
-                            foreach( string s in otherS ) {
+                            foreach ( string s in otherS ) {
                                 StringUtil.SplitCSV( s, components );
                                 if( components.Count > 1 ) {
                                     line += '"' + s + '"' + ',';
@@ -259,18 +260,24 @@ namespace AbraxisToolset.CSVFiles {
 
                 //Add other entries
                 for( int i = 0; i < newEntry.otherEntries.Length; i++ ) {
-                    for( int j = 0; j < newEntry.otherEntries[i].Length; j++ ) {
-                        //If we are not on the first element, add a comma if there is already elements
-                        if ((newEntry.otherEntries[i][j] != string.Empty && newEntry.otherEntries[i][j] != elementSkipTag))
+
+                        for ( int j = 0; j < newEntry.otherEntries[i].Length; j++ ) {
+                        if (patchEntry.otherEntries[i][j] != string.Empty && newEntry.otherEntries[i][j] != elementSkipTag)
                             patchEntry.otherEntries[i][j] += ", ";
 
                         if (newEntry.otherEntries[i][j] == elementSkipTag)
                             patchEntry.otherEntries[i][j] += string.Empty;
                         else
+                        {
+                           // Debug.Log("Hey Im about to test the other entries thing");
+                            //Debug.Log("Here it is-" + newEntry.otherEntries[i][j]);
                             patchEntry.otherEntries[i][j] += newEntry.otherEntries[i][j];
+                           // Debug.Log("I tested the other entries thing");
+                           // Debug.Log("Patch[" + i + "][" + j + "] is, yet again, " + patchEntry.otherEntries[i][j]);
+                        }
                     }
                 }
-
+                
                 entries[entryIDWithoutPrefix] = patchEntry;
             }
         }
@@ -304,20 +311,108 @@ namespace AbraxisToolset.CSVFiles {
                 }
 
                 //Add other entries
-                for( int i = 0; i < newEntry.otherEntries.Length; i++ ) {
-                    for( int j = 0; j < newEntry.otherEntries[i].Length; j++ ) {
+                int newI = 0;
+                bool appending = false;
+                for ( int i = 0; i < newEntry.otherEntries.Length; i++ ) {
+
+                    string firstElem = newEntry.otherEntries[i][1];
+                    string prefix = ATCSVUtil.GetPrefix(firstElem);
+                    if (prefix ==  patchAppendPrefix)
+                    {
+                        string idWithoutPrefix = ATCSVUtil.GetWithoutPrefix(firstElem);
+                        Debug.Log("Hey We are Appending! It's " + idWithoutPrefix);
+                        newEntry.otherEntries[i][1] = idWithoutPrefix;
+
+
+                        //Alright, so if you decided to add a completely new row, it will go here
+                        string[][] temp = new string[(newEntry.otherEntries.Length - i) + patchEntry.otherEntries.Length][];
+                        Debug.Log("Temp's Length is " + temp.Length + "While PatchEntry's Length is " + patchEntry.otherEntries.Length);
+                        //Go through and declare each array size (because I dont think there are more than that many fields for each row)
+                        for (int z = 0; z < temp.Length; z++)
+                        {
+                            if (z < patchEntry.otherEntries.Length)
+                            {
+                                temp[z] = new string[patchEntry.otherEntries[z].Length];
+                            }
+                            else
+                                temp[z] = new string[4];
+                        }
+                        // We need to make a new array of arrays that is as big as newEntry but also has all of PatchEntries stuff
+                        Debug.Log("Bouta fit patchEntries into temp!");
+                        for (int k = 0; k < patchEntry.otherEntries.Length; k++)
+                        {
+                            Debug.Log("Starting k again!");
+                            for (int l = 0; l < patchEntry.otherEntries[k].Length; l++)
+                            {
+                                Debug.Log("k is" + k + " and l is " + l);
+                                temp[k][l] = patchEntry.otherEntries[k][l];
+                            }
+                        }
+
+                        //Now, lets turn that extra space from null to empty!
+                        for (int x = 0; x < temp.Length; x++)
+                        {
+                            for (int y = 0; y < temp[x].Length; y++)
+                            {
+                                bool nullOrEmpty = string.IsNullOrEmpty(temp[x][y]);
+                                if (nullOrEmpty)
+                                {
+                                    temp[x][y] = string.Empty;
+                                }
+                            }
+                        }
+                        //Now we have to change i so that it's at the proper place at the end of the old patchEntry.otherEntries list, so now it'll add these things to the end of PatchEntry!
+                        //But we also have to note that now the i value is out of sync with both NewEntry and PatchEntry, so we must declare a new variable to keep track of patchEntry's length
+                        newI = patchEntry.otherEntries.Length;
+                        appending = true;
+                        patchEntry.otherEntries = temp;
+                        Debug.Log("patchEntry Length is now " + patchEntry.otherEntries.Length);
+
+                    }
+
+
+
+
+
+
+
+
+                    for ( int j = 0; j < newEntry.otherEntries[i].Length; j++ ) {
                         //store element
+                        Debug.Log("I sure hope it is not having a problem storing an element? I is " + i + "and j is " + j);
                         string element = newEntry.otherEntries[i][j];
 
                         //If element is empty, skip it.
-                        if( element == string.Empty || element == elementSkipTag)
+                        if (element == string.Empty || element == elementSkipTag)
                             continue;
                         //If the element is the tag to remove, remove the original element.
-                        else if( element == elementRemoveTag )
-                            patchEntry.otherEntries[i][j] = string.Empty;
+                        else if (element == elementRemoveTag)
+                        {
+                            if (appending)
+                            {
+                                Debug.Log("Appending a Empty");
+                                patchEntry.otherEntries[newI][j] = string.Empty;
+                            }
+                            else
+                                patchEntry.otherEntries[i][j] = string.Empty;
+                        }
                         //If the other two checks aren't true, just overwrite.
                         else
-                            patchEntry.otherEntries[i][j] = element;
+                        {
+                            if (appending)
+                            {
+                                Debug.Log("Appending a new entry, its " + patchEntry.otherEntries[newI][j]);
+                                patchEntry.otherEntries[newI][j] = element;
+                            }
+                            else
+                                patchEntry.otherEntries[i][j] = element;
+                        }
+                    }
+
+                    if (appending)
+                    {
+                        newI++;
+                        Debug.Log("NewI is now " + newI);
                     }
                 }
 
