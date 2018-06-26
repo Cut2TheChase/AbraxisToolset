@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using AbraxisToolset;
 using UnityEngine;
+using HBS.Data;
+using System.Collections;
 
 namespace Patches {
     [MonoMod.MonoModPatch("global::Necro.DataManager")]
@@ -25,6 +27,7 @@ namespace Patches {
         private extern float TryParseFloat(TextFieldParser parser, string fieldName, string varGroup);
 
 
+
         public float TryParseFloatProxy(TextFieldParser parser, string fieldName, string varGroup)
         {
             return TryParseFloat(parser, fieldName, varGroup);
@@ -35,12 +38,16 @@ namespace Patches {
             return ParseTagWeights(parser, fieldName, nullIfEmpty);
         }
 
+       
+
         public extern void orig_Awake();
         public void Awake() {
             Debug.Log("Pre parser load");
             NecroHooks.preParserLoad();
             orig_Awake();
         }
+
+       
 
     }
 }

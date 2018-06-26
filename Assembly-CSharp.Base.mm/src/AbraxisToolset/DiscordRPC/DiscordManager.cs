@@ -43,7 +43,7 @@ namespace AbraxisToolset.DiscordRPC {
         private bool isInvite = false;
 
         float updateTimer = 0;
-        private Dictionary<string, string> actorIDtoPictureID = new Dictionary<string, string>() {
+        public Dictionary<string, string> actorIDtoPictureID = new Dictionary<string, string>() {
             {"BlackguardMale","blackguard_female"},
 {"BlackguardFemale","blackguard_female"},
 {"BlackguardColorTest","blackguard_female"},
@@ -208,7 +208,7 @@ namespace AbraxisToolset.DiscordRPC {
 {"FireDjinn","blackguard_female"},
 {"Bandit","blackguard_female"}
         };
-        private Dictionary<string, string> actorIDtoText = new Dictionary<string, string>() {
+        public Dictionary<string, string> actorIDtoText = new Dictionary<string, string>() {
             {"BlackguardMale","Playing Blackguard Male"},
 {"BlackguardFemale","Playing Blackguard Female"},
 {"BlackguardColorTest","Playing Blackguard ColorTest"},
