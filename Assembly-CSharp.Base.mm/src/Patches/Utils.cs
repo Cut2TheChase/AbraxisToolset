@@ -27,6 +27,11 @@ namespace AbraxisToolset.src.Patches
             return LazySingletonBehavior<patch_DataManger>.Instance.TryParseFloatProxy(parser, fieldName, varGroup);
         }
 
+        public static StatModPair[] ParseStatMods(TextFieldParser parser, string fieldName, bool nullIfEmpty)
+        {
+            return LazySingletonBehavior<patch_DataManger>.Instance.ParseStatModsProxy(parser, fieldName, nullIfEmpty);
+        }
+
         public static void NetworkAddIngredient(string id, int value)
         {
             LazySingletonBehavior<patch_Inventory>.Instance.NetworkAddIngredientProxy(id, value);
