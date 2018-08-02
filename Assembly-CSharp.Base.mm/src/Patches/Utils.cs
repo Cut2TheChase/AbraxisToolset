@@ -5,7 +5,7 @@ using HBS;
 using HBS.Collections;
 using HBS.Text;
 using Patches;
-
+using Necro.Data.Stats;
 
 namespace AbraxisToolset.src.Patches
 {

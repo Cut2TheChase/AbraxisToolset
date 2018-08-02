@@ -9,6 +9,7 @@ using AbraxisToolset;
 using UnityEngine;
 using HBS.Data;
 using System.Collections;
+using Necro.Data.Stats;
 
 namespace Patches {
     [MonoMod.MonoModPatch("global::Necro.DataManager")]
@@ -26,6 +27,8 @@ namespace Patches {
         [MonoMod.MonoModIgnore]
         private extern float TryParseFloat(TextFieldParser parser, string fieldName, string varGroup);
 
+        [MonoMod.MonoModIgnore]
+        private extern StatModPair[] ParseStatMods(TextFieldParser parser, string fieldName, bool nullIfEmpty);
 
 
         public float TryParseFloatProxy(TextFieldParser parser, string fieldName, string varGroup)
@@ -38,7 +41,12 @@ namespace Patches {
             return ParseTagWeights(parser, fieldName, nullIfEmpty);
         }
 
-       
+        public StatModPair[] ParseStatModsProxy(TextFieldParser parser, string fieldName, bool nullIfEmpty)
+        {
+            return ParseStatMods(parser, fieldName, nullIfEmpty);
+        }
+
+
 
         public extern void orig_Awake();
         public void Awake() {
