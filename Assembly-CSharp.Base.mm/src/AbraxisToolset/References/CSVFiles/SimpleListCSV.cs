@@ -336,7 +336,7 @@ namespace AbraxisToolset.CSVFiles {
                 for( int i = start; i < newEntry.values.Length; i++ ) {
 
                     //If the element is not empty, add a comma
-                    if (patchEntry.values[i] != null || patchEntry.values[i] != "")
+                    if (patchEntry.values[i] != null || patchEntry.values[i] != "" || patchEntry.values[i] != " ")
                         patchEntry.values[i] += ", ";
 
                     patchEntry.values[i] += newEntry.values[i];
@@ -388,7 +388,7 @@ namespace AbraxisToolset.CSVFiles {
                         if (i == 1)
                         {
                             //If the element is not empty, add a comma
-                            if (patchEntry.values[i] != null || patchEntry.values[i] != "")
+                            if (patchEntry.values[i] != null || patchEntry.values[i] != "" || patchEntry.values[i] != " ")
                                 patchEntry.values[i] += ", ";
 
                             patchEntry.values[i] += newEntry.values[i];

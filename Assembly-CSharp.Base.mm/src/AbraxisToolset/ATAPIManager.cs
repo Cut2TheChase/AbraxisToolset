@@ -20,6 +20,10 @@ using HBS.Scripting.Reflection;
 
 using AbraxisToolset.CSVFiles;
 using AbraxisToolset.DiscordRPC;
+using System.IO;
+using AssetBundles;
+using Patches;
+using HBS.Pooling;
 
 namespace AbraxisToolset {
     public class ATAPIManager: MonoBehaviour {
@@ -56,6 +60,22 @@ namespace AbraxisToolset {
 
             DontDestroyOnLoad( newObject );
 
+            //Import Asset Bundles
+            //AssetImporting.Import();
+            /*
+            var myLoadedAssetBundle = AssetBundle.LoadFromFile(Path.Combine(Application.streamingAssetsPath, "AssetBundles/Windows/starwars"));
+            myLoadedAssetBundle.Unload(false);
+
+            try
+            {
+                PrefabManifest
+                LazySingletonBehavior<patch_PrefabManager>.Instance.CachePrefabProxy<GameObject>("eq-weapon-shortsword-bb8", myLoadedAssetBundle.LoadAsset<GameObject>("eq-weapon-shortsword-bb8"));
+            }
+            catch(Exception e)
+            {
+                Debug.Log("MODDED ASSET BUNDLE FAILED- " + e);
+            }
+           */
             //Patch all CSV's.
             CSVPatcher.PatchCSVs();
 
@@ -63,10 +83,14 @@ namespace AbraxisToolset {
            // ATModManager.LoadMods();
         }
 
+
         public void Awake() {
             instance = this;
             doesInstanceExist = true;
+
+       
         }
+
 
         public void Update() {
 

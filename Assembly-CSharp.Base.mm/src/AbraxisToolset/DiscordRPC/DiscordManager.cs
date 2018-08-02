@@ -206,7 +206,8 @@ namespace AbraxisToolset.DiscordRPC {
 {"HurtyGertieNormal","blackguard_female"},
 {"CrystalMantis","blackguard_female"},
 {"FireDjinn","blackguard_female"},
-{"Bandit","blackguard_female"}
+{"Bandit","blackguard_female"},
+{ "PC-SkeletonPlayer", "skeleton" }
         };
         public Dictionary<string, string> actorIDtoText = new Dictionary<string, string>() {
             {"BlackguardMale","Playing Blackguard Male"},
@@ -371,7 +372,8 @@ namespace AbraxisToolset.DiscordRPC {
 {"HurtyGertieNormal","Playing Some Hideous Creature"},
 {"CrystalMantis","Playing Some Hideous Creature"},
 {"FireDjinn","Playing Some Hideous Creature"},
-{"Bandit","Playing Some Hideous Creature"}
+{"Bandit","Playing Some Hideous Creature"},
+ { "PC-SkeletonPlayer", "skeleton" }
 
         };
 
